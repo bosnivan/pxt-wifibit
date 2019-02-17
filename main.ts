@@ -37,7 +37,7 @@ namespace WiFiBit {
      * @param lozinka WiFi mreže, eg: "lozinka"
      */
     //% weight=99
-    //% blockId="wfb_wifi_on" block="spoji se na WiFi mrežu NAZIV: %naziv| LOZINKA: %lozinka"
+    //% blockId="wfb_wifi_on" block="spoji se na WiFi mrežu: %naziv| %lozinka"
     export function connectToWiFiNetwork(naziv: string, lozinka: string): void {
         // Connect to AP:
         writeToSerial("AT+CWJAP=\"" + naziv + "\",\"" + lozinka + "\"", 6000)
