@@ -33,14 +33,14 @@ namespace WiFiBit {
 
     /**
      * Spoji se na svoju WiFi mrežu.
-     * @param naziv naziv WiFi mreže, eg: "SSID"
-     * @param lozinka lozinka WiFi mreže, eg: "ključ"
+     * @param ssid naziv WiFi mreže, eg: "SSID"
+     * @param key lozinka WiFi mreže, eg: "ključ"
      */
     //% weight=99
-    //% blockId="wfb_wifi_on" block="spoji se na WiFi mrežu: %naziv| %lozinka"
-    export function connectToWiFiNetwork(naziv: string, lozinka: string): void {
+    //% blockId="wfb_wifi_on" block="spoji se na WiFi mrežu: %ssid| %key"
+    export function connectToWiFiNetwork(ssid: string, key: string): void {
         // Connect to AP:
-        writeToSerial("AT+CWJAP=\"" + naziv + "\",\"" + lozinka + "\"", 6000)
+        writeToSerial("AT+CWJAP=\"" + ssid + "\",\"" + key + "\"", 6000)
     }
 
     /**
@@ -55,13 +55,25 @@ namespace WiFiBit {
 
     /**
      * Izvrši AT naredbu.
-     * @param naredba AT naredba, eg: "AT"
-     * @param pauza pauza nakon naredbe, eg: 1000
+     * @param command AT naredba, eg: "AT"
+     * @param waitTime pauza nakon naredbe, eg: 1000
      */
     //% weight=97
-    //% blockId="wfb_at" block="izvrši AT naredbu: %naziv| %lozinka"
-    export function executeAtCommand(naredba: string, pauza: number): void {
-        writeToSerial(naredba, pauza)
+    //% blockId="wfb_at" block="izvrši AT naredbu %command| i zatim pričekaj %waitTime| ms"
+    export function executeAtCommand(command: string, waitTime: number): void {
+        writeToSerial(command, waitTime)
+    }
+
+    /**
+     * Izvrši HTTP metodu GET.
+     * @param host adresa servera, eg: "httpbin.org"
+     * @param port port servera, eg: 80
+     * @queryString ulazni parametri, eg: "/ip"
+     */
+    //% weight=96
+    //% blockId="wfb_get" block="izvrši HTTP metodu GET, server: %host| port: %port| ulazni parametri: %queryString"
+    export function submitGetMethod(host: string, port: number, queryString: string): void {
+        
     }
 
 }
