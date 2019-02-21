@@ -37,7 +37,7 @@ namespace WiFiBit {
      * @param key lozinka WiFi mreže, eg: "ključ"
      */
     //% weight=99
-    //% blockId="wfb_wifi_on" block="spoji se na WiFi mrežu (naziv: %ssid|, lozinka: %key"|)
+    //% blockId="wfb_wifi_on" block="spoji se na WiFi mrežu (naziv: %ssid|, lozinka: %key|)"
     export function connectToWiFiNetwork(ssid: string, key: string): void {
         // Connect to AP:
         writeToSerial("AT+CWJAP=\"" + ssid + "\",\"" + key + "\"", 6000)
@@ -73,10 +73,12 @@ namespace WiFiBit {
     //% weight=96
     //% blockId="wfb_get" block="izvrši HTTP metodu GET (server: %host|, port: %port|, ulazni parametri: %queryString|)"
     export function submitGetMethod(host: string, port: number, queryString: string): void {
+        // Establish TCP connection
         let data = "AT+CIPSTART=\"TCP\",\"" + host + "\"," + port
         writeToSerial(data, 6000)
         data = "GET " + queryString + " HTTP/ 1.1" + "\u000D" + "\u000A"
             + "Host: " + host + "\u000D" + "\u000A" + "\u000D" + "\u000A"
+        // Send data
         writeToSerial("AT+CIPSEND=" + (data.length + 2), 3000)
         writeToSerial(data, 6000)
     }
