@@ -1,7 +1,7 @@
 /**
  * Naredbe za rad s WiFi:bitom.
  */
-//% color=#FFC0CB weight=90 icon="\uf1eb" block="WiFi:bit"
+//% color=#2B5797 weight=90 icon="\uf1eb" block="WiFi:bit"
 namespace WiFiBit {
 
     function writeToSerial(data: string, waitTime: number): void {
@@ -33,8 +33,8 @@ namespace WiFiBit {
 
     /**
      * Spoji se na svoju WiFi mrežu.
-     * @param naziv WiFi mreže, eg: "naziv"
-     * @param lozinka WiFi mreže, eg: "lozinka"
+     * @param naziv naziv WiFi mreže, eg: "SSID"
+     * @param lozinka lozinka WiFi mreže, eg: "ključ"
      */
     //% weight=99
     //% blockId="wfb_wifi_on" block="spoji se na WiFi mrežu: %naziv| %lozinka"
@@ -55,8 +55,8 @@ namespace WiFiBit {
 
     /**
      * Izvrši AT naredbu.
-     * @param naredba AT naredba, eg: "naredba"
-     * @param pauza nakon naredbe, eg: "pauza"
+     * @param naredba AT naredba, eg: "AT"
+     * @param pauza pauza nakon naredbe, eg: 1000
      */
     //% weight=97
     //% blockId="wfb_at" block="izvrši AT naredbu: %naziv| %lozinka"
