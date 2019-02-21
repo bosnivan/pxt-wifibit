@@ -71,9 +71,14 @@ namespace WiFiBit {
      * @param queryString ulazni parametri, eg: "/ip"
      */
     //% weight=96
-    //% blockId="wfb_get" block="izvrši HTTP metodu GET\r\nserver: %host| port: %port| ulazni parametri: %queryString"
+    //% blockId="wfb_get" block="izvrši HTTP metodu GET; server: %host| port: %port| ulazni parametri: %queryString"
     export function submitGetMethod(host: string, port: number, queryString: string): void {
-        
+        let data = "AT+CIPSTART=\"TCP\",\"" + host + "\"," + port
+        writeToSerial(data, 6000)
+        data = "GET " + queryString + " HTTP/ 1.1" + "\u000D" + "\u000A"
+            + "Host: " + host + "\u000D" + "\u000A" + "\u000D" + "\u000A"
+        writeToSerial("AT+CIPSEND=" + (data.length + 2), 3000)
+        writeToSerial(data, 6000)
     }
 
 }
