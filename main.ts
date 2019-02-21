@@ -1,7 +1,7 @@
 /**
  * Naredbe za rad s WiFi:bitom.
  */
-//% color=#000000 weight=90 icon="\uf1eb" block="WiFi:bit"
+//% color=#FFC0CB weight=90 icon="\uf1eb" block="WiFi:bit"
 namespace WiFiBit {
 
     function writeToSerial(data: string, waitTime: number): void {
@@ -51,6 +51,17 @@ namespace WiFiBit {
     export function disconnectFromWiFiNetwork(): void {
         // Disconnect from AP:
         writeToSerial("AT+CWQAP", 6000)
+    }
+
+    /**
+     * Izvrši AT naredbu.
+     * @param naredba AT naredba, eg: "naredba"
+     * @param pauza nakon naredbe, eg: "pauza"
+     */
+    //% weight=97
+    //% blockId="wfb_at" block="izvrši AT naredbu: %naziv| %lozinka"
+    export function executeAtCommand(naredba: string, pauza: number): void {
+        writeToSerial(naredba, pauza)
     }
 
 }
