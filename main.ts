@@ -26,7 +26,7 @@ namespace WiFiBit {
         // Restart module:
         writeToSerial("AT+RST", 2000)
         // Disable echo (Doesn’t send back received command):
-        writeToSerial("ATE0", 1000)
+        //writeToSerial("ATE0", 1000)
         // WIFI mode = Station mode (client):
         writeToSerial("AT+CWMODE=1", 5000)
     }
@@ -66,20 +66,46 @@ namespace WiFiBit {
 
     /**
      * Izvrši HTTP metodu GET.
-     * @param host adresa servera, eg: "httpbin.org"
+     * @param host adresa servera, eg: "google.com"
      * @param port port servera, eg: 80
-     * @param queryString ulazni parametri, eg: "/ip"
+     * @param urlPath putanja na serveru, eg: "/search?q=something"
      */
     //% weight=96
-    //% blockId="wfb_get" block="izvrši HTTP metodu GET (server: %host|, port: %port|, ulazni parametri: %queryString|)"
-    export function submitGetMethod(host: string, port: number, queryString: string): void {
+    //% blockId="wfb_get" block="izvrši HTTP metodu GET (server: %host|, port: %port|, putanja: %urlPath|)"
+    export function submitGetMethod(host: string, port: number, urlPath: string): void {
         // Establish TCP connection
         let data = "AT+CIPSTART=\"TCP\",\"" + host + "\"," + port
         writeToSerial(data, 6000)
-        data = "GET " + queryString + " HTTP/ 1.1" + "\u000D" + "\u000A"
+        data = "GET " + urlPath + " HTTP/1.1" + "\u000D" + "\u000A"
             + "Host: " + host + "\u000D" + "\u000A" + "\u000D" + "\u000A"
         // Send data
-        writeToSerial("AT+CIPSEND=" + (data.length), 3000)
+        writeToSerial("AT+CIPSEND=" + (data.length + 2), 3000)
+        writeToSerial(data, 6000)
+    }
+
+    /**
+     * Izvrši HTTP metodu POST.
+     * @param host adresa servera, eg: "google.com"
+     * @param port port servera, eg: 80
+     * @param urlPath putanja na serveru, eg: "/search"
+     * @param headers zaglavlja, eg: []
+     * @param body podaci, eg: "q=something"
+     */
+    //% weight=95
+    //% blockId="wfb_post" block="izvrši HTTP metodu POST (server: %host|, port: %port|, putanja: %urlPath|, zaglavlja: %headers|, podaci: %body|)"
+    export function submitPostMethod(host: string, port: number, urlPath: string, headers: string[] = [], body: string): void {
+        // Establish TCP connection
+        let data = "AT+CIPSTART=\"TCP\",\"" + host + "\"," + port
+        writeToSerial(data, 6000)
+        data = "POST " + urlPath + " HTTP/1.1" + "\u000D" + "\u000A"
+            + "Host: " + host + "\u000D" + "\u000A"
+        for (let i = 0; i < headers.length; i++) {
+            data += headers[i] + "\u000D" + "\u000A"
+        }
+        data += "\u000D" + "\u000A"
+        data += body + "\u000D" + "\u000A" + "\u000D" + "\u000A"
+        // Send data
+        writeToSerial("AT+CIPSEND=" + (data.length + 2), 3000)
         writeToSerial(data, 6000)
     }
 
