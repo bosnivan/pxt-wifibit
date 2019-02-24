@@ -81,6 +81,8 @@ namespace WiFiBit {
         // Send data
         writeToSerial("AT+CIPSEND=" + (data.length + 2), 3000)
         writeToSerial(data, 6000)
+        // CLose TCP connection
+        writeToSerial("AT+CIPCLOSE", 3000)
     }
 
     /**
@@ -107,6 +109,8 @@ namespace WiFiBit {
         // Send data
         writeToSerial("AT+CIPSEND=" + (data.length + 2), 3000)
         writeToSerial(data, 6000)
+        // CLose TCP connection
+        writeToSerial("AT+CIPCLOSE", 3000)
     }
 
 }
