@@ -79,7 +79,7 @@ namespace WiFiBit {
         data = "GET " + queryString + " HTTP/ 1.1" + "\u000D" + "\u000A"
             + "Host: " + host + "\u000D" + "\u000A" + "\u000D" + "\u000A"
         // Send data
-        writeToSerial("AT+CIPSEND=" + (data.length + 2), 3000)
+        writeToSerial("AT+CIPSEND=" + (data.length), 3000)
         writeToSerial(data, 6000)
     }
 
