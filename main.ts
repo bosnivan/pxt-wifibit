@@ -33,11 +33,11 @@ namespace WiFiBit {
 
     /**
      * Spoji se na svoju WiFi mrežu.
-     * @param ssid naziv WiFi mreže, eg: "SSID"
-     * @param key lozinka WiFi mreže, eg: "ključ"
+     * @param ssid Naziv WiFi mreže, eg: "SSID"
+     * @param key Lozinka WiFi mreže, eg: "ključ"
      */
     //% weight=99
-    //% blockId="wfb_wifi_on" block="spoji se na WiFi mrežu (naziv: %ssid|, lozinka: %key|)"
+    //% blockId="wfb_wifi_on" block="spoji se na WiFi mrežu %ssid, %key"
     export function connectToWiFiNetwork(ssid: string, key: string): void {
         // Connect to AP:
         writeToSerial("AT+CWJAP=\"" + ssid + "\",\"" + key + "\"", 6000)
@@ -56,61 +56,68 @@ namespace WiFiBit {
     /**
      * Izvrši AT naredbu.
      * @param command AT naredba, eg: "AT"
-     * @param waitTime pauza nakon naredbe, eg: 1000
+     * @param waitTime Pauza nakon naredbe, eg: 1000
      */
     //% weight=97
-    //% blockId="wfb_at" block="izvrši AT naredbu %command| i zatim pričekaj %waitTime| ms"
+    //% blockId="wfb_at" block="izvrši AT naredbu %command i zatim pričekaj %waitTime ms"
     export function executeAtCommand(command: string, waitTime: number): void {
         writeToSerial(command, waitTime)
     }
 
     /**
-     * Izvrši HTTP metodu GET.
+     * Izvrši neku od HTTP metoda.
+     * @param method metoda koja će se izvršiti, eg: HttpMethod.GET
      * @param host adresa servera, eg: "google.com"
      * @param port port servera, eg: 80
      * @param urlPath putanja na serveru, eg: "/search?q=something"
+     * @param headers zaglavlja
+     * @param body tijelo
      */
     //% weight=96
-    //% blockId="wfb_get" block="izvrši HTTP metodu GET (server: %host|, port: %port|, putanja: %urlPath|)"
-    export function submitGetMethod(host: string, port: number, urlPath: string): void {
-        // Establish TCP connection
-        let data = "AT+CIPSTART=\"TCP\",\"" + host + "\"," + port
-        writeToSerial(data, 6000)
-        data = "GET " + urlPath + " HTTP/1.1" + "\u000D" + "\u000A"
-            + "Host: " + host + "\u000D" + "\u000A" + "\u000D" + "\u000A"
-        // Send data
-        writeToSerial("AT+CIPSEND=" + (data.length + 2), 3000)
-        writeToSerial(data, 6000)
-        // CLose TCP connection
-        writeToSerial("AT+CIPCLOSE", 3000)
-    }
-
-    /**
-     * Izvrši HTTP metodu POST.
-     * @param host adresa servera, eg: "google.com"
-     * @param port port servera, eg: 80
-     * @param urlPath putanja na serveru, eg: "/search"
-     * @param headers zaglavlja, eg: []
-     * @param body podaci, eg: "q=something"
-     */
-    //% weight=95
-    //% blockId="wfb_post" block="izvrši HTTP metodu POST (server: %host|, port: %port|, putanja: %urlPath|, zaglavlja: %headers|, podaci: %body|)"
-    export function submitPostMethod(host: string, port: number, urlPath: string, headers: string[] = [], body: string): void {
-        // Establish TCP connection
-        let data = "AT+CIPSTART=\"TCP\",\"" + host + "\"," + port
-        writeToSerial(data, 6000)
-        data = "POST " + urlPath + " HTTP/1.1" + "\u000D" + "\u000A"
-            + "Host: " + host + "\u000D" + "\u000A"
-        for (let i = 0; i < headers.length; i++) {
-            data += headers[i] + "\u000D" + "\u000A"
+    //% blockId="wfb_http" block="izvrši HTTP metodu %method|server: %host|port: %port|putanja: %urlPath||zaglavlja: %headers|tijelo: %body"
+    export function useHttpMethod(method: HttpMethod, host: string, port: number, urlPath: string, headers?: string[], body?: string): void {
+        let myMethod: string
+        switch (method) {
+            case HttpMethod.GET: myMethod = "GET";
+            case HttpMethod.POST: myMethod = "POST";
+            case HttpMethod.PUT: myMethod = "PUT";
+            case HttpMethod.HEAD: myMethod = "HEAD";
+            case HttpMethod.DELETE: myMethod = "DELETE";
+            case HttpMethod.PATCH: myMethod = "PATCH";
+            case HttpMethod.OPTIONS: myMethod = "OPTIONS";
+            case HttpMethod.CONNECT: myMethod = "CONNECT";
+            case HttpMethod.TRACE: myMethod = "TRACE";
         }
-        data += "\u000D" + "\u000A"
-        data += body + "\u000D" + "\u000A" + "\u000D" + "\u000A"
-        // Send data
+        // Establish TCP connection:
+        let data = "AT+CIPSTART=\"TCP\",\"" + host + "\"," + port
+        writeToSerial(data, 6000)
+        data = myMethod + " " + urlPath + " HTTP/1.1" + "\u000D" + "\u000A"
+            + "Host: " + host + "\u000D" + "\u000A"
+        if (headers && headers.length > 0) {
+            for (let i = 0; i < headers.length; i++) {
+                data += headers[i] + "\u000D" + "\u000A"
+            }
+        }
+        if (data && !data.isEmpty() && data.length > 0) {
+            data += "\u000D" + "\u000A" + body
+        }
+        data += "\u000D" + "\u000A" + "\u000D" + "\u000A"
+        // Send data:
         writeToSerial("AT+CIPSEND=" + (data.length + 2), 3000)
         writeToSerial(data, 6000)
-        // CLose TCP connection
+        // Close TCP connection:
         writeToSerial("AT+CIPCLOSE", 3000)
     }
+}
 
+enum HttpMethod {
+    GET,
+    POST,
+    PUT,
+    HEAD,
+    DELETE,
+    PATCH,
+    OPTIONS,
+    CONNECT,
+    TRACE
 }
