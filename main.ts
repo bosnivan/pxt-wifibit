@@ -1,8 +1,22 @@
+enum HttpMethod {
+    GET,
+    POST,
+    PUT,
+    HEAD,
+    DELETE,
+    PATCH,
+    OPTIONS,
+    CONNECT,
+    TRACE
+}
+
 /**
  * Naredbe za rad s WiFi:bitom.
  */
 //% color=#2B5797 weight=90 icon="\uf1eb" block="WiFi:bit"
 namespace WiFiBit {
+
+    let pauseBaseValue: number = 1000
 
     function writeToSerial(data: string, waitTime: number): void {
         serial.writeString(data + "\u000D" + "\u000A")
@@ -75,7 +89,7 @@ namespace WiFiBit {
      */
     //% weight=96
     //% blockId="wfb_http" block="izvrši HTTP metodu %method|server: %host|port: %port|putanja: %urlPath||zaglavlja: %headers|tijelo: %body"
-    export function useHttpMethod(method: HttpMethod, host: string, port: number, urlPath: string, headers?: string[], body?: string): void {
+    export function useHttpMethod(method: HttpMethod, host: string, port: number, urlPath: string, headers?: string, body?: string): void {
         let myMethod: string
         switch (method) {
             case HttpMethod.GET: myMethod = "GET";
@@ -90,34 +104,29 @@ namespace WiFiBit {
         }
         // Establish TCP connection:
         let data = "AT+CIPSTART=\"TCP\",\"" + host + "\"," + port
-        writeToSerial(data, 6000)
+        writeToSerial(data, pauseBaseValue * 6)
         data = myMethod + " " + urlPath + " HTTP/1.1" + "\u000D" + "\u000A"
             + "Host: " + host + "\u000D" + "\u000A"
-        if (headers && headers.length > 0) {
-            for (let i = 0; i < headers.length; i++) {
-                data += headers[i] + "\u000D" + "\u000A"
-            }
+        if (headers && !headers.isEmpty() && headers.length > 0) {
+            data += headers + "\u000D" + "\u000A"
         }
         if (data && !data.isEmpty() && data.length > 0) {
             data += "\u000D" + "\u000A" + body
         }
         data += "\u000D" + "\u000A" + "\u000D" + "\u000A"
         // Send data:
-        writeToSerial("AT+CIPSEND=" + (data.length + 2), 3000)
-        writeToSerial(data, 6000)
+        writeToSerial("AT+CIPSEND=" + (data.length + 2), pauseBaseValue * 3)
+        writeToSerial(data, pauseBaseValue * 6)
         // Close TCP connection:
-        writeToSerial("AT+CIPCLOSE", 3000)
+        writeToSerial("AT+CIPCLOSE", pauseBaseValue * 3)
     }
-}
 
-enum HttpMethod {
-    GET,
-    POST,
-    PUT,
-    HEAD,
-    DELETE,
-    PATCH,
-    OPTIONS,
-    CONNECT,
-    TRACE
+    /**
+     * Promijeni trajanje pauza u sklopu izvođenja HTTP metoda.
+     * @param newPauseBaseValue Bazna vrijednost, eg: 1000
+     */
+    //% weight=95
+    export function changeHttpMethodWaitPeriod(newPauseBaseValue: number): void {
+        pauseBaseValue = newPauseBaseValue
+    }
 }
