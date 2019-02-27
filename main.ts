@@ -10,6 +10,7 @@ enum HttpMethod {
     TRACE
 }
 
+
 /**
  * Naredbe za rad s WiFi:bitom.
  */
@@ -92,14 +93,14 @@ namespace WiFiBit {
     export function useHttpMethod(method: HttpMethod, host: string, port: number, urlPath: string, headers?: string, body?: string): void {
         let myMethod: string
         switch (method) {
-            case HttpMethod.GET: myMethod = "GET";
-            case HttpMethod.POST: myMethod = "POST";
-            case HttpMethod.PUT: myMethod = "PUT";
-            case HttpMethod.HEAD: myMethod = "HEAD";
-            case HttpMethod.DELETE: myMethod = "DELETE";
-            case HttpMethod.PATCH: myMethod = "PATCH";
-            case HttpMethod.OPTIONS: myMethod = "OPTIONS";
-            case HttpMethod.CONNECT: myMethod = "CONNECT";
+            case HttpMethod.GET: myMethod = "GET"; break;
+            case HttpMethod.POST: myMethod = "POST"; break;
+            case HttpMethod.PUT: myMethod = "PUT"; break;
+            case HttpMethod.HEAD: myMethod = "HEAD"; break;
+            case HttpMethod.DELETE: myMethod = "DELETE"; break;
+            case HttpMethod.PATCH: myMethod = "PATCH"; break;
+            case HttpMethod.OPTIONS: myMethod = "OPTIONS"; break;
+            case HttpMethod.CONNECT: myMethod = "CONNECT"; break;
             case HttpMethod.TRACE: myMethod = "TRACE";
         }
         // Establish TCP connection:
@@ -107,13 +108,13 @@ namespace WiFiBit {
         writeToSerial(data, pauseBaseValue * 6)
         data = myMethod + " " + urlPath + " HTTP/1.1" + "\u000D" + "\u000A"
             + "Host: " + host + "\u000D" + "\u000A"
-        if (headers && !headers.isEmpty() && headers.length > 0) {
+        if (headers && headers.length > 0) {
             data += headers + "\u000D" + "\u000A"
         }
-        if (data && !data.isEmpty() && data.length > 0) {
-            data += "\u000D" + "\u000A" + body
+        if (data && data.length > 0) {
+            data += "\u000D" + "\u000A" + body + "\u000D" + "\u000A"
         }
-        data += "\u000D" + "\u000A" + "\u000D" + "\u000A"
+        data += "\u000D" + "\u000A"
         // Send data:
         writeToSerial("AT+CIPSEND=" + (data.length + 2), pauseBaseValue * 3)
         writeToSerial(data, pauseBaseValue * 6)
@@ -129,4 +130,55 @@ namespace WiFiBit {
     export function changeHttpMethodWaitPeriod(newPauseBaseValue: number): void {
         pauseBaseValue = newPauseBaseValue
     }
+
+}
+
+
+/**
+ * Naredbe za rad s Blynkom.
+ */
+//% color=#2B5797 weight=89 icon="\uf1eb" block="Blynk"
+namespace Blynk {
+
+    /**
+     * Zapiši vrijednost u pin Blynka.
+     * @param auth_token Token, eg: "14dabda3551b4dd5ab46464af582f7d2"
+     * @param pin Pin, eg: "A0"
+     * @param value Vrijednost, eg: "510"
+     */
+    //% weight=100
+    //% blockId="blynk_write" block="zapiši %value u %pin, token je %auth_token"
+    export function writePinValue(value: string, pin: string, auth_token: string): void {
+        WiFiBit.useHttpMethod(
+            HttpMethod.GET,
+            "blynk-cloud.com",
+            80,
+            "/" + auth_token + "/update/" + pin + "?value=" + value
+        )
+    }
+
+    /**
+     * Pročitaj vrijednost pina iz Blynka.
+     * @param auth_token Token, eg: "14dabda3551b4dd5ab46464af582f7d2"
+     * @param pin Pin, eg: "A0"
+     */
+    //% weight=99
+    //% blockId="blynk_read" block="pročitaj %pin, token je %auth_token"
+    export function readPinValue(pin: string, auth_token: string): void {
+        WiFiBit.executeAtCommand("ATE0", 1000)
+        let response: string
+        serial.onDataReceived(serial.delimiters(Delimiters.NewLine), function () {
+            response += serial.readString()
+        })
+        WiFiBit.useHttpMethod(
+            HttpMethod.GET,
+            "blynk-cloud.com",
+            80,
+            "/" + auth_token + "/get/" + pin
+        )
+        basic.showString(response.substr(response.indexOf("[") + 2, response.indexOf("]") - response.indexOf("[") - 3))
+        response = null
+        serial.onDataReceived(serial.delimiters(Delimiters.NewLine), () => { })
+    }
+
 }
