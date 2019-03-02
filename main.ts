@@ -14,10 +14,8 @@ enum HttpMethod {
 /**
  * Naredbe za rad s WiFi:bitom.
  */
-//% color=#2B5797 weight=90 icon="\uf1eb" block="WiFi:bit"
+//% color=#3452C3 weight=90 icon="\uf1eb" block="WiFi:bit"
 namespace WiFiBit {
-
-    let pauseBaseValue: number = 1000
 
     function writeToSerial(data: string, waitTime: number): void {
         serial.writeString(data + "\u000D" + "\u000A")
@@ -25,6 +23,32 @@ namespace WiFiBit {
             basic.pause(waitTime)
         }
     }
+
+    function setNewlines(data: string): string {
+        let rows: string[] = data.split("\\r\\n")
+        if (rows.length < 2) {
+            return data
+        } else {
+            let response = rows[0]
+            for (let i = 1; i < rows.length; i++) {
+                response.concat("\u000D" + "\u000A")
+                response.concat(rows[i])
+            }
+            return response
+        }   
+    }
+
+    let pauseBaseValue: number = 1000
+
+    /**
+     * Promijeni trajanje pauza u sklopu izvođenja HTTP metoda.
+     * @param newPauseBaseValue Bazna vrijednost, eg: 1000
+     */
+    //% weight=1
+    export function changeHttpMethodWaitPeriod(newPauseBaseValue: number): void {
+        pauseBaseValue = newPauseBaseValue
+    }
+
 
     /**
      * Serijski poveži micro:bit i WiFi:bit.
@@ -37,17 +61,15 @@ namespace WiFiBit {
             SerialPin.P8,
             BaudRate.BaudRate115200
         )
-        basic.pause(10)
+        basic.pause(100)
         // Restart module:
         writeToSerial("AT+RST", 2000)
-        // Disable echo (Doesn’t send back received command):
-        //writeToSerial("ATE0", 1000)
         // WIFI mode = Station mode (client):
         writeToSerial("AT+CWMODE=1", 5000)
     }
 
     /**
-     * Spoji se na svoju WiFi mrežu.
+     * Spoji se na WiFi mrežu.
      * @param ssid Naziv WiFi mreže, eg: "SSID"
      * @param key Lozinka WiFi mreže, eg: "ključ"
      */
@@ -81,16 +103,16 @@ namespace WiFiBit {
 
     /**
      * Izvrši neku od HTTP metoda.
-     * @param method metoda koja će se izvršiti, eg: HttpMethod.GET
-     * @param host adresa servera, eg: "google.com"
-     * @param port port servera, eg: 80
-     * @param urlPath putanja na serveru, eg: "/search?q=something"
-     * @param headers zaglavlja
-     * @param body tijelo
+     * @param method Metoda koja će se izvršiti, eg: HttpMethod.GET
+     * @param host Adresa servera, eg: "google.com"
+     * @param port Port servera, eg: 80
+     * @param urlPath Putanja na serveru, eg: "/search?q=something"
+     * @param headers Zaglavlja
+     * @param body Tijelo
      */
     //% weight=96
     //% blockId="wfb_http" block="izvrši HTTP metodu %method|server: %host|port: %port|putanja: %urlPath||zaglavlja: %headers|tijelo: %body"
-    export function useHttpMethod(method: HttpMethod, host: string, port: number, urlPath: string, headers?: string, body?: string): void {
+    export function executeHttpMethod(method: HttpMethod, host: string, port: number, urlPath: string, headers?: string, body?: string): void {
         let myMethod: string
         switch (method) {
             case HttpMethod.GET: myMethod = "GET"; break;
@@ -104,15 +126,15 @@ namespace WiFiBit {
             case HttpMethod.TRACE: myMethod = "TRACE";
         }
         // Establish TCP connection:
-        let data = "AT+CIPSTART=\"TCP\",\"" + host + "\"," + port
+        let data: string = "AT+CIPSTART=\"TCP\",\"" + host + "\"," + port
         writeToSerial(data, pauseBaseValue * 6)
         data = myMethod + " " + urlPath + " HTTP/1.1" + "\u000D" + "\u000A"
             + "Host: " + host + "\u000D" + "\u000A"
         if (headers && headers.length > 0) {
-            data += headers + "\u000D" + "\u000A"
+            data += setNewlines(headers) + "\u000D" + "\u000A"
         }
         if (data && data.length > 0) {
-            data += "\u000D" + "\u000A" + body + "\u000D" + "\u000A"
+            data += "\u000D" + "\u000A" + setNewlines(body) + "\u000D" + "\u000A"
         }
         data += "\u000D" + "\u000A"
         // Send data:
@@ -123,62 +145,45 @@ namespace WiFiBit {
     }
 
     /**
-     * Promijeni trajanje pauza u sklopu izvođenja HTTP metoda.
-     * @param newPauseBaseValue Bazna vrijednost, eg: 1000
+     * Zapiši vrijednost u zadani pin Blynka.
+     * @param value Vrijednost koja se zapisuje, eg: "510"
+     * @param pin Pin u koji se zapisuje, eg: "A0"
+     * @param auth_token Token za pristup Blynku, eg: "14dabda3551b4dd5ab46464af582f7d2"
      */
     //% weight=95
-    export function changeHttpMethodWaitPeriod(newPauseBaseValue: number): void {
-        pauseBaseValue = newPauseBaseValue
-    }
-
-}
-
-
-/**
- * Naredbe za rad s Blynkom.
- */
-//% color=#2B5797 weight=89 icon="\uf1eb" block="Blynk"
-namespace Blynk {
-
-    /**
-     * Zapiši vrijednost u pin Blynka.
-     * @param auth_token Token, eg: "14dabda3551b4dd5ab46464af582f7d2"
-     * @param pin Pin, eg: "A0"
-     * @param value Vrijednost, eg: "510"
-     */
-    //% weight=100
-    //% blockId="blynk_write" block="zapiši %value u %pin, token je %auth_token"
+    //% blockId="wfb_blynk_write" block="Blynk: zapiši %value u %pin, token je %auth_token"
     export function writePinValue(value: string, pin: string, auth_token: string): void {
-        WiFiBit.useHttpMethod(
+        executeHttpMethod(
             HttpMethod.GET,
             "blynk-cloud.com",
             80,
-            "/" + auth_token + "/update/" + pin + "?value=" + value
+            "/" + auth_token + "/update/" + pin + "?value=" + setNewlines(value)
         )
     }
 
     /**
-     * Pročitaj vrijednost pina iz Blynka.
-     * @param auth_token Token, eg: "14dabda3551b4dd5ab46464af582f7d2"
-     * @param pin Pin, eg: "A0"
+     * Pročitaj vrijednost zadanog pina Blynka.
+     * @param pin Pin koji se čita, eg: "A0"
+     * @param auth_token Token za pristup Blynku, eg: "14dabda3551b4dd5ab46464af582f7d2"
      */
-    //% weight=99
-    //% blockId="blynk_read" block="pročitaj %pin, token je %auth_token"
-    export function readPinValue(pin: string, auth_token: string): void {
-        WiFiBit.executeAtCommand("ATE0", 1000)
+    //% weight=94
+    //% blockId="wfb_blynk_read" block="Blynk: pročitaj %pin, token je %auth_token"
+    export function readPinValue(pin: string, auth_token: string): string {
+        executeAtCommand("ATE0", 1000)
         let response: string
         serial.onDataReceived(serial.delimiters(Delimiters.NewLine), function () {
             response += serial.readString()
         })
-        WiFiBit.useHttpMethod(
+        executeHttpMethod(
             HttpMethod.GET,
             "blynk-cloud.com",
             80,
             "/" + auth_token + "/get/" + pin
         )
-        basic.showString(response.substr(response.indexOf("[") + 2, response.indexOf("]") - response.indexOf("[") - 3))
+        let value: string = response.substr(response.indexOf("[") + 2, response.indexOf("]") - response.indexOf("[") - 3)
         response = null
         serial.onDataReceived(serial.delimiters(Delimiters.NewLine), () => { })
+        return value
     }
 
 }
