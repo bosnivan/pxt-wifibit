@@ -10,6 +10,12 @@ enum HttpMethod {
     TRACE
 }
 
+enum Newline {
+    CRLF,
+    LF,
+    CR
+}
+
 
 /**
  * Naredbe za rad s WiFi:bitom.
@@ -22,20 +28,6 @@ namespace WiFiBit {
         if (waitTime > 0) {
             basic.pause(waitTime)
         }
-    }
-
-    function setNewlines(data: string): string {
-        let rows: string[] = data.split("\\r\\n")
-        if (rows.length < 2) {
-            return data
-        } else {
-            let response = rows[0]
-            for (let i = 1; i < rows.length; i++) {
-                response.concat("\u000D" + "\u000A")
-                response.concat(rows[i])
-            }
-            return response
-        }   
     }
 
     let pauseBaseValue: number = 1000
@@ -131,10 +123,10 @@ namespace WiFiBit {
         data = myMethod + " " + urlPath + " HTTP/1.1" + "\u000D" + "\u000A"
             + "Host: " + host + "\u000D" + "\u000A"
         if (headers && headers.length > 0) {
-            data += setNewlines(headers) + "\u000D" + "\u000A"
+            data += headers + "\u000D" + "\u000A"
         }
         if (data && data.length > 0) {
-            data += "\u000D" + "\u000A" + setNewlines(body) + "\u000D" + "\u000A"
+            data += "\u000D" + "\u000A" + body + "\u000D" + "\u000A"
         }
         data += "\u000D" + "\u000A"
         // Send data:
@@ -157,7 +149,7 @@ namespace WiFiBit {
             HttpMethod.GET,
             "blynk-cloud.com",
             80,
-            "/" + auth_token + "/update/" + pin + "?value=" + setNewlines(value)
+            "/" + auth_token + "/update/" + pin + "?value=" + value
         )
     }
 
@@ -184,6 +176,23 @@ namespace WiFiBit {
         response = null
         serial.onDataReceived(serial.delimiters(Delimiters.NewLine), () => { })
         return value
+    }
+
+    /**
+     * Prijelaz u novi redak. Koristi se kada zaglavlja ili tijelo imaju više redaka.
+     * @param nlType Vrsta prijelaza u novi redak, eg: Newline.CRLF
+     */
+    //% weight=93
+    //% blockId="wfb_crlf" block="%method"
+    export function newline(nlType?: Newline): string {
+        if (nlType) {
+            switch (nlType) {
+                case Newline.CRLF: return "\u000D" + "\u000A";
+                case Newline.LF: return "\u000A";
+                case Newline.CR: return "\u000D";
+            }
+        }
+        return "\u000D" + "\u000A"
     }
 
 }
