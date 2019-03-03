@@ -41,7 +41,6 @@ namespace WiFiBit {
         pauseBaseValue = newPauseBaseValue
     }
 
-
     /**
      * Serijski poveži micro:bit i WiFi:bit.
      */
