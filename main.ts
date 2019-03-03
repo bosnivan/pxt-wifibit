@@ -180,18 +180,10 @@ namespace WiFiBit {
 
     /**
      * Prijelaz u novi redak. Koristi se kada zaglavlja ili tijelo imaju više redaka.
-     * @param nlType Vrsta prijelaza u novi redak, eg: Newline.CRLF
      */
     //% weight=93
-    //% blockId="wfb_crlf" block="%method"
-    export function newline(nlType?: Newline): string {
-        if (nlType) {
-            switch (nlType) {
-                case Newline.CRLF: return "\u000D" + "\u000A";
-                case Newline.LF: return "\u000A";
-                case Newline.CR: return "\u000D";
-            }
-        }
+    //% blockId="wfb_crlf" block="CRLF"
+    export function newline(): string {
         return "\u000D" + "\u000A"
     }
 
