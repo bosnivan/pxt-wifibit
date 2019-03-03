@@ -24,7 +24,7 @@ Namijenjena je naprednim korisnicima, za slučajeve koji nisu pokriveni ostalim 
 ### Izvrši neku od HTTP metoda
 ![alt text](/images/05%20-%20executeHttpMethod.png "executeHttpMethod()")
 <br/>
-Glavna naredba. Služi za slanje, promjenu, brisanje i dohvat podataka pomoću neke od [HTTP metoda](https://www.tutorialspoint.com/http/http_methods.htm). Iznad je prikazan osnovni oblik naredbe. Klikom na gumb + dodaju se neobavezna polja zaglavlja i tijela metode. Izgled i korištenje vidljivi su na primjeru korištenja, pri dnu ove stranice.
+Glavna naredba. Služi za slanje, promjenu, brisanje i dohvat podataka pomoću neke od [HTTP metoda](https://www.tutorialspoint.com/http/http_methods.htm). Iznad je prikazan osnovni oblik naredbe. Klikom na gumb + dodaju se neobavezna polja zaglavlja i tijela metode. Njihov izgled i korištenje vidljivi su na primjeru korištenja, pri dnu ove stranice.
 <br/>
 ### Zapiši vrijednost u zadani pin Blynka
 ![alt text](/images/06%20-%20writePinValue.png "writePinValue()")
@@ -44,7 +44,7 @@ Koristi se u sklopu naredbe izvršavanja HTTP metode, kada zaglavlja i/ili tijel
 ### Promijeni trajanje pauza u sklopu izvođenja HTTP metoda
 ![alt text](/images/09%20-%20changeHttpMethodWaitPeriod.png "changeHttpMethodWaitPeriod()")
 <br/>
-Naredba je dostupna samo u JavaScript dijelu MakeCoda. Služi za ubrzavanje ili usporavanje izvršavanja HTTP metode. Ono u ovom paketu traje oko 15 sekundi. Pritom većina vremena otpada na čekanje povratnih informacija odredišta. Vrijednosti su postavljene da pokriju većinu slučajeva. Ako trebate brže izvođenje ili trebate dodati još vremena na čekanje povratnih informacije, potrebno je izvršiti ovu naredbu. Početna vrijednost je 1000. Ako ju izvršite s vrijednošću 500, naredba će se duplo brže izvršavati. Ako ju izvršite s naredbom 2000, naredba će se duplo sporije izvršavati. Moguće je koristiti i druge vrijednosti, u skladu s potrebama.
+Naredba je dostupna samo u JavaScript dijelu MakeCoda. Služi za ubrzavanje ili usporavanje izvršavanja HTTP metode, koje u ovom paketu traje oko 15 sekundi. Pritom većina vremena otpada na čekanje povratnih informacija odredišta. Vrijednosti su postavljene tako da pokriju većinu slučajeva. Ako trebate brže ili sporije izvođenje, potrebno je izvršiti ovu naredbu. Početna vrijednost je 1000. Ako ju izvršite s vrijednošću 500, naredbe će se nadalje duplo brže izvršavati. Ako ju izvršite s naredbom 2000, naredbe će se duplo sporije izvršavati. Moguće je koristiti i druge vrijednosti, u skladu sa svojim  potrebama.
 <br/>
 ## Primjer izvođenja:
 ![alt text](/images/example.png "Example")
