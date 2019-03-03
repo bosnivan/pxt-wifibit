@@ -67,6 +67,7 @@ _Naredba koja je dostupna samo u JavaScript dijelu MakeCoda. Služi za ubrzavanj
 
 
 Primjer izvođenja:
+
 ![alt text](/images/example.png "newline()")
 
 
